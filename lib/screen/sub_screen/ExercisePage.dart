@@ -3,22 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appfinal/services/firestore_service.dart';
 
-class BeverageMenuScreen extends StatefulWidget {
+class ExerciseScreen extends StatefulWidget {
   final Function(String title, String calorie, int count)? onSelectMenu;
 
-  const BeverageMenuScreen({super.key, this.onSelectMenu});
+  const ExerciseScreen({super.key, this.onSelectMenu});
 
   @override
-  State<BeverageMenuScreen> createState() => _BeverageMenuScreenState();
+  State<ExerciseScreen> createState() => _ExerciseScreenState();
 }
 
-class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
+class _ExerciseScreenState extends State<ExerciseScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirestoreService _firestoreService = FirestoreService();
 
   String? userUUID; // ตัวแปรเก็บ UUID ของผู้ใช้
   List<int> _itemCounts = [];
-  List<DocumentSnapshot> _beverageMenus = [];
+  List<DocumentSnapshot> _exerciseMenus = [];
 
   @override
   void initState() {
@@ -35,9 +35,10 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
 
   Future<void> _fetchData() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('dummyBeverage').get();
+      QuerySnapshot snapshot =
+          await _firestore.collection('dummyExercise').get();
       setState(() {
-        _beverageMenus = snapshot.docs;
+        _exerciseMenus = snapshot.docs;
         _itemCounts = List.generate(snapshot.docs.length, (index) => 0);
       });
     } catch (e) {
@@ -49,19 +50,20 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Beverage Menu'),
+        title: const Text('Exercise Menu'),
         backgroundColor: AppColors.secondary,
       ),
-      body: _beverageMenus.isEmpty
+      body: _exerciseMenus.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: _beverageMenus.length,
+              itemCount: _exerciseMenus.length,
               itemBuilder: (ctx, index) {
-                final menuData = _beverageMenus[index].data() as Map<String, dynamic>;
+                final menuData =
+                    _exerciseMenus[index].data() as Map<String, dynamic>;
 
-                final String title = menuData['titleWater'] ?? 'No Title';
-                final String calorie = menuData['calorieWater'] ?? '0 kcal';
-                final String imageUrl = menuData['imageUrlWater'] ?? '';
+                final String title = menuData['titlesport'] ?? 'No Title';
+                final String calorie = menuData['caloriesport'] ?? '0 kcal';
+                final String imageUrl = menuData['imageUrlsport'] ?? '';
 
                 return Card(
                   margin: const EdgeInsets.all(10),
@@ -84,7 +86,8 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
                               width: double.infinity,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.image_not_supported, size: 100),
+                                  const Icon(Icons.image_not_supported,
+                                      size: 100),
                             ),
                           ),
                           Positioned(
@@ -111,7 +114,7 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                    'Calories: $calorie',
+                                    'Calories Burned: $calorie',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       color: Colors.white,
@@ -136,7 +139,8 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
                                   }
                                 });
                               },
-                              icon: const Icon(Icons.remove, color: AppColors.iconColor),
+                              icon:const Icon(Icons.remove,
+                                  color: AppColors.iconColor),
                               label: const Text("Remove"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
@@ -172,28 +176,35 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (widget.onSelectMenu != null) {
-                              widget.onSelectMenu!(title, calorie, _itemCounts[index]);
+                              widget.onSelectMenu!(
+                                  title, calorie, _itemCounts[index]);
                             }
 
                             try {
                               if (userUUID != null) {
-                                // ✅ บันทึกลง Firestore (ใน UUID เดิมของผู้ใช้)
-                                await _firestoreService.logFoodEntry(
+                                int burnedCalories = int.parse(
+                                    calorie.replaceAll(RegExp(r'[^0-9]'), ''));
+
+                                // ✅ บันทึกข้อมูลการออกกำลังกาย
+                                await _firestoreService.logExerciseEntry(
                                   title,
-                                  int.parse(calorie.replaceAll(RegExp(r'[^0-9]'), '')),
+                                  30, // ตั้งค่าเวลาออกกำลังกายเป็น 30 นาที
+                                  burnedCalories,
                                   imageUrl,
-                                  "Beverage",
                                 );
 
-                                print("✅ บันทึกข้อมูลเครื่องดื่มสำเร็จ: $title ($calorie kcal)");
+                                // ✅ บันทึกแคลอรี่ที่เผาผลาญในแต่ละวัน
+                                await _firestoreService
+                                    .saveDailyCalories(burnedCalories);
+
+                                print(
+                                    "✅ บันทึกข้อมูลออกกำลังกายสำเร็จ: $title ($burnedCalories kcal)");
                               } else {
                                 print("❌ ไม่พบ UUID ของผู้ใช้");
                               }
                             } catch (e) {
-                              print("❌ Error saving beverage data: $e");
+                              print("❌ Error saving exercise data: $e");
                             }
-
-                            Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.secondary,

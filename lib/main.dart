@@ -1,8 +1,12 @@
-import 'package:appfinal/healthcare.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:appfinal/healthcare.dart';
+import 'package:appfinal/firebase_options.dart'; 
 
-//import 'package:healthcares/screen/PersonnolDetail.dart';
-
-void main() {
-  runApp(const HealthCares());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, 
+  );
+  runApp(const HealthCares()); 
 }

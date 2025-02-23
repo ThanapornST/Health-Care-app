@@ -2,7 +2,7 @@
 // ปุ่มเลือกหมวดหมู่หน้าแรก
 import 'package:appfinal/screen/main_screen/CalculatePage.dart';
 import 'package:appfinal/screen/main_screen/CategoryScreen.dart';
-import 'package:appfinal/screen/main_screen/Sleepingpage.dart';
+import 'package:appfinal/screen/sub_screen/Sleepingpage.dart';
 import 'package:appfinal/screen/main_screen/Table_Calendar.dart';
 import 'package:appfinal/theme/AppColors%20.dart';
 import 'package:flutter/material.dart';

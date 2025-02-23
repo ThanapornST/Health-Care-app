@@ -1,5 +1,6 @@
+import 'package:appfinal/screen/main_screen/CalculatePage.dart';
 import 'package:appfinal/screen/main_screen/CategoryScreen.dart';
-import 'package:appfinal/screen/main_screen/ExercisePage.dart';
+import 'package:appfinal/screen/sub_screen/ExercisePage.dart';
 import 'package:appfinal/screen/main_screen/SelectCalcultion.dart';
 import 'package:appfinal/screen/main_screen/SummarizePage.dart';
 import 'package:appfinal/screen/main_screen/Table_Calendar.dart';
@@ -35,7 +36,7 @@ class _CalculateFoodCaloriesState extends State<CalculateFoodCalories> {
         weight: widget.weight,
       ),
       const CategoryScreen(),
-      const SummarizePage(),
+      const CalculatePage(),
       const TableCalendarScreen(),
       const ExerciseScreen(),
     ];

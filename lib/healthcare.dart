@@ -1,6 +1,5 @@
 // เป็นหน้าสำหรับเปลี่ยนจอ
 import 'package:appfinal/screen/PersonnolDetail.dart';
-import 'package:appfinal/screen/WelcomePage.dart';
 import 'package:appfinal/theme/AppColors%20.dart';
 import 'package:appfinal/widget/button/button_manu.dart';
 import 'package:appfinal/widget/intro/swiper_images.dart';
@@ -44,12 +43,12 @@ class _HealthCaresState extends State<HealthCares> {
     return MaterialApp(
       theme: ThemeData(
         scaffoldBackgroundColor:
-            AppColors.background, // ใช้สีพื้นหลังจาก AppColors
+            AppColors.background, 
       ),
       home: Scaffold(
-        backgroundColor: AppColors.background, // เปลี่ยนพื้นหลังของ Scaffold
+        backgroundColor: AppColors.background, 
         body: Container(
-          color: AppColors.background, // กำหนดสีพื้นหลังให้ Container ด้วย
+          color: AppColors.background, 
           child: screenWidget,
         ),
       ),

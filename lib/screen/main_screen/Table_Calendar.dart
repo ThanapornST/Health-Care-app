@@ -1,8 +1,7 @@
-// หน้าปฏิทิน
+import 'package:appfinal/data/dummy_events.dart';
 import 'package:appfinal/theme/AppColors%20.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-
 
 class TableCalendarScreen extends StatefulWidget {
   const TableCalendarScreen({super.key});
@@ -13,7 +12,25 @@ class TableCalendarScreen extends StatefulWidget {
 
 class _TableCalendarScreenState extends State<TableCalendarScreen> {
   DateTime today = DateTime.now();
-  Map<DateTime, List<String>> events = {};
+  Map<DateTime, List<String>> events = dummyEvents; // Use dummy events
+
+  // ฟังก์ชันเพื่อหาวันเริ่มต้นและวันสิ้นสุดของสัปดาห์
+  List<DateTime> getWeekDays(DateTime date) {
+    final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
+    return List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
+  }
+
+  // ฟังก์ชันแสดงกิจกรรมในสัปดาห์ปัจจุบัน
+  List<String> getWeeklyEvents(DateTime date) {
+    final weekDays = getWeekDays(date);
+    List<String> weeklyEvents = [];
+    for (var day in weekDays) {
+      if (events[day] != null) {
+        weeklyEvents.addAll(events[day]!);
+      }
+    }
+    return weeklyEvents;
+  }
 
   // ฟังก์ชันที่ทำงานเมื่อเลือกวันที่
   void _onDaySelected(DateTime day, DateTime focusedDay) {
@@ -21,6 +38,20 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
       today = day;
     });
     _showAddNoteDialog(day);
+  }
+
+  // ฟังก์ชันกำหนดสีพื้นหลังของแผนตามประเภทกิจกรรม
+  Color getPlanColor(String planType) {
+    switch (planType) {
+      case 'Exercise':
+        return Colors.lightBlue[100]!;
+      case 'Diet':
+        return Colors.green[100]!;
+      case 'Sleep':
+        return Colors.purple[100]!;
+      default:
+        return Colors.grey[200]!;
+    }
   }
 
   // กล่องข้อความเพื่อเพิ่มโน้ต
@@ -61,8 +92,8 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Table Calendar with Notes'),
-        backgroundColor: AppColors.secondary, // ใช้สีรอง
+        title: const Text('Table Calendar with Weekly View'),
+        backgroundColor: AppColors.secondary,
       ),
       body: Column(
         children: [
@@ -81,14 +112,22 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
             eventLoader: (day) {
               return events[day] ?? [];
             },
-            calendarStyle: CalendarStyle(
+            calendarStyle: const CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
+              todayTextStyle:  TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
               selectedDecoration: BoxDecoration(
                 color: AppColors.secondary,
                 shape: BoxShape.circle,
+              ),
+              selectedTextStyle:  TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
               markerDecoration: BoxDecoration(
                 color: AppColors.iconColor,
@@ -96,46 +135,45 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           Expanded(
-            child: ListView.builder(
-              itemCount: events[today]?.length ?? 0,
-              itemBuilder: (context, index) {
-                return Dismissible(
-                  key: UniqueKey(), // ใช้คีย์ที่ไม่ซ้ำสำหรับทุกๆ โน้ต
-                  direction: DismissDirection.endToStart, // ปัดจากขวาไปซ้ายเพื่อลบ
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    color: Colors.red,
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  onDismissed: (direction) {
-                    setState(() {
-                      events[today]?.removeAt(index); // ลบโน้ตออกจากรายการ
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Note dismissed')),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(color: AppColors.secondary),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          events[today]?[index] ?? 'No Notes',
-                          style: TextStyle(color: AppColors.textPrimary),
+            child: Column(
+              children: [
+                const Text(
+                  'Weekly Plan',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: getWeeklyEvents(today).length,
+                    itemBuilder: (context, index) {
+                      final weeklyEvents = getWeeklyEvents(today);
+                      final event = weeklyEvents[index];
+                      final planType = event.split(':')[0]; 
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        child: Card(
+                          color: getPlanColor(planType), 
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side:const BorderSide(color: AppColors.secondary),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              event,
+                              style:const TextStyle(color: AppColors.textPrimary),
+                            ),
+                            leading:const Icon(Icons.event_note,
+                                color: AppColors.iconColor),
+                          ),
                         ),
-                        leading: Icon(Icons.event_note, color: AppColors.iconColor),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
         ],
