@@ -90,7 +90,6 @@ class _SleepingPageState extends State<SleepingPage> {
 
                   try {
                     if (userUUID != null) {
-                      // ✅ บันทึกข้อมูลการนอนลง Firestore (ใน UUID เดิมของผู้ใช้)
                       await _firestoreService.logSleepEntry(sleepHours);
 
                       print("✅ บันทึกเวลานอนสำเร็จใน UUID: $userUUID");
@@ -101,7 +100,7 @@ class _SleepingPageState extends State<SleepingPage> {
                     print("❌ Error saving sleep data: $e");
                   }
 
-                  Navigator.pop(context, sleepHours.toString()); // ส่งข้อมูลกลับ
+                  Navigator.pop(context, sleepHours.toString()); 
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

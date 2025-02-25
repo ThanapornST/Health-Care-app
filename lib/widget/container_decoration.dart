@@ -10,15 +10,15 @@ class ContainerDecoration extends StatelessWidget {
   });
 
   final String text;
-  final Widget? child; // สามารถเป็นวัตถุของคลาส Widget หรือเป็น null ก็ได้
+  final Widget? child; 
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.primary, // ใช้สีหลักเป็นพื้นหลัง
+        color: AppColors.primary, 
         border: Border.all(
-          color: AppColors.secondary, // ใช้สีรองเป็นสีขอบ
+          color: AppColors.secondary, 
           width: 4,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -34,7 +34,7 @@ class ContainerDecoration extends StatelessWidget {
               child: Text(
                 text,
                 style: const TextStyle(
-                  color: AppColors.secondary, // ใช้สีรองเป็นสีข้อความ
+                  color: AppColors.secondary, 
                   fontSize: 18,
                 ),
                 overflow: TextOverflow.ellipsis,

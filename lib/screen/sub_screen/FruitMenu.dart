@@ -16,21 +16,21 @@ class _FruitMenuScreenState extends State<FruitMenuScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirestoreService _firestoreService = FirestoreService();
 
-  String? userUUID; // ตัวแปรเก็บ UUID ของผู้ใช้
+  String? userUUID; 
   List<int> _itemCounts = [];
   List<DocumentSnapshot> _fruitMenus = [];
 
   @override
   void initState() {
     super.initState();
-    _initializeUser(); // ✅ ดึงหรือสร้าง UUID ของผู้ใช้
+    _initializeUser(); 
     _fetchData();
   }
 
   // ✅ ฟังก์ชันดึง UUID หรือสร้างใหม่ถ้ายังไม่มี
   Future<void> _initializeUser() async {
     userUUID = await _firestoreService.getOrCreateUserUUID();
-    setState(() {}); // อัปเดต UI หลังจากได้ UUID
+    setState(() {}); 
   }
 
   Future<void> _fetchData() async {

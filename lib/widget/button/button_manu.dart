@@ -51,8 +51,8 @@ class _CalculateFoodCaloriesState extends State<CalculateFoodCalories> {
       ),
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.transparent,
-        buttonBackgroundColor: AppColors.primary, // ใช้สีหลักเป็นสีปุ่ม
-        color: AppColors.secondary, // ใช้สีรองเป็นสีพื้นหลังแถบ
+        buttonBackgroundColor: AppColors.primary, 
+        color: AppColors.secondary, 
         animationDuration: const Duration(milliseconds: 300),
         items: const <Widget>[
           Icon(Icons.home, size: 26, color: AppColors.iconColor),

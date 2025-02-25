@@ -80,7 +80,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
               return InkWell(
                 onTap: () {
-                  _selectCategory(context, meal['categories'][0]); // ✅ ใช้ Category จาก Firestore
+                  _selectCategory(context, meal['categories'][0]); 
                 },
                 child: Card(
                   margin: const EdgeInsets.all(10),
@@ -98,7 +98,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               topRight: Radius.circular(15),
                             ),
                             child: Image.network(
-                              meal['imageUrl'], // ✅ ใช้รูปภาพจาก Firestore
+                              meal['imageUrl'], 
                               height: 200,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -115,7 +115,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 horizontal: 20,
                               ),
                               child: Text(
-                                meal['title'], // ✅ ใช้ชื่อเมนูจาก Firestore
+                                meal['title'],
                                 style: const TextStyle(
                                   fontSize: 26,
                                   color: Colors.white,

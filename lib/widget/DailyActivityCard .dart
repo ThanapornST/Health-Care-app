@@ -23,7 +23,7 @@ class DailyActivityCard extends StatelessWidget {
         color: Colors.white, 
         borderRadius: BorderRadius.circular(20), 
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)), // เงาสำหรับ Container
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)), 
         ],
       ),
       child: Column(
@@ -74,11 +74,11 @@ class DailyActivityCard extends StatelessWidget {
   Widget _buildIconText(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.iconColor), // ไอคอน
-        const SizedBox(width: 4), // ระยะห่างระหว่างไอคอนและข้อความ
+        Icon(icon, size: 18, color: AppColors.iconColor), 
+        const SizedBox(width: 4),
         Text(
           text,
-          style:const TextStyle(fontSize: 14, color: AppColors.textPrimary), // ข้อความ
+          style:const TextStyle(fontSize: 14, color: AppColors.textPrimary), 
         ),
       ],
     );
@@ -96,7 +96,7 @@ class DailyActivityCard extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         LinearProgressIndicator(
-          value: progress > 1 ? 1 : progress, // จำกัดค่า progress ไม่ให้เกิน 1
+          value: progress > 1 ? 1 : progress, 
           backgroundColor: Colors.grey[300],
           color: AppColors.secondary,
           minHeight: 8,

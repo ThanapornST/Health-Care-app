@@ -18,19 +18,19 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
   List<int> _itemCounts = [];
   List<DocumentSnapshot> _mainMenus = [];
-  String? userUUID; // ตัวแปรเก็บ UUID ของผู้ใช้
+  String? userUUID; 
 
   @override
   void initState() {
     super.initState();
-    _initializeUser(); // ✅ ดึงหรือสร้าง UUID ของผู้ใช้
+    _initializeUser(); 
     _fetchData();
   }
 
   // ✅ ฟังก์ชันดึง UUID หรือสร้างใหม่ถ้ายังไม่มี
   Future<void> _initializeUser() async {
     userUUID = await _firestoreService.getOrCreateUserUUID();
-    setState(() {}); // อัปเดต UI หลังจากได้ UUID
+    setState(() {}); 
   }
 
   Future<void> _fetchData() async {
@@ -177,7 +177,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
                             try {
                               if (userUUID != null) {
-                                // ✅ บันทึกลง Firestore (ใน UUID เดิมของผู้ใช้)
                                 await _firestoreService.logFoodEntry(
                                   title,
                                   int.parse(calorie.replaceAll(RegExp(r'[^0-9]'), '')),

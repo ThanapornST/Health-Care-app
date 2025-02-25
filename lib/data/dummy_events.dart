@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 final Map<DateTime, List<String>> dummyEvents = {
-  DateTime.utc(2025, 2, 17): [
+  DateTime.utc(2025, 2, 24): [
     'Exercise: Morning Jogging',
     'Exercise: Yoga Class',
     'Diet: Healthy Breakfast',
@@ -9,7 +9,7 @@ final Map<DateTime, List<String>> dummyEvents = {
     'Diet: Grilled Chicken Dinner',
     'Sleep: 10:00 PM - 6:00 AM',
   ],
-  DateTime.utc(2025, 2, 18): [
+  DateTime.utc(2025, 2, 25): [
     'Exercise: Gym Workout',
     'Exercise: Evening Walk',
     'Diet: Oatmeal Breakfast',
@@ -17,7 +17,7 @@ final Map<DateTime, List<String>> dummyEvents = {
     'Diet: Fish Dinner',
     'Sleep: 10:30 PM - 6:30 AM',
   ],
-  DateTime.utc(2025, 2, 19): [
+  DateTime.utc(2025, 2, 26): [
     'Exercise: Cycling',
     'Exercise: Stretching',
     'Diet: Fruit Smoothie',
@@ -25,7 +25,7 @@ final Map<DateTime, List<String>> dummyEvents = {
     'Diet: Steak Dinner',
     'Sleep: 11:00 PM - 7:00 AM',
   ],
-  DateTime.utc(2025, 2, 20): [
+  DateTime.utc(2025, 2, 27): [
     'Exercise: Swimming Practice',
     'Exercise: Yoga Class',
     'Diet: Pancake Breakfast',
@@ -33,7 +33,7 @@ final Map<DateTime, List<String>> dummyEvents = {
     'Diet: Soup Dinner',
     'Sleep: 10:00 PM - 6:00 AM',
   ],
-  DateTime.utc(2025, 2, 21): [
+  DateTime.utc(2025, 2, 28): [
     'Exercise: Meditation',
     'Exercise: Gym Workout',
     'Diet: Toast with Avocado',
@@ -41,7 +41,7 @@ final Map<DateTime, List<String>> dummyEvents = {
     'Diet: Pasta Dinner',
     'Sleep: 10:30 PM - 6:30 AM',
   ],
-  DateTime.utc(2025, 2, 22): [
+  DateTime.utc(2025, 3, 1): [
     'Exercise: Play Tennis',
     'Exercise: Evening Walk',
     'Diet: Yogurt with Berries',
@@ -49,7 +49,7 @@ final Map<DateTime, List<String>> dummyEvents = {
     'Diet: Barbecue Dinner',
     'Sleep: 11:00 PM - 7:00 AM',
   ],
-  DateTime.utc(2025, 2, 23): [
+  DateTime.utc(2025, 3, 2): [
     'Exercise: Relax and Stretch',
     'Exercise: Gardening',
     'Diet: Brunch: Pancakes and Fruits',
