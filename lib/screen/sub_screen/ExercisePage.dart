@@ -46,6 +46,29 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
   }
 
+  // ✅ ฟังก์ชันแสดง Popup ติ๊กถูก และหายไปเอง
+  void showSuccessToast(String title) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            Icon(Icons.check_circle, color: Colors.white, size: 24), // ติ๊กถูก
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "บันทึกสำเร็จ!",
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 2), // หายไปเองใน 2 วินาที
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.green, // สีพื้นหลัง SnackBar
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,6 +222,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
                                 print(
                                     "✅ บันทึกข้อมูลออกกำลังกายสำเร็จ: $title ($burnedCalories kcal)");
+                                showSuccessToast(title); // ใช้ SnackBar แทน AlertDialog
                               } else {
                                 print("❌ ไม่พบ UUID ของผู้ใช้");
                               }
@@ -210,7 +234,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                             backgroundColor: AppColors.secondary,
                             foregroundColor: Colors.white,
                           ),
-                          child: const Text('เลือกเมนูนี้'),
+                          child: const Text('เลือกกิจกรรมนี้'),
                         ),
                       ),
                     ],

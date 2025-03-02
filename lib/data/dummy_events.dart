@@ -1,59 +1,35 @@
 import 'package:flutter/material.dart';
 
-final Map<DateTime, List<String>> dummyEvents = {
-  DateTime.utc(2025, 2, 24): [
-    'Exercise: Morning Jogging',
-    'Exercise: Yoga Class',
-    'Diet: Healthy Breakfast',
-    'Diet: Salad for Lunch',
-    'Diet: Grilled Chicken Dinner',
-    'Sleep: 10:00 PM - 6:00 AM',
-  ],
-  DateTime.utc(2025, 2, 25): [
-    'Exercise: Gym Workout',
-    'Exercise: Evening Walk',
-    'Diet: Oatmeal Breakfast',
-    'Diet: Vegetable Soup Lunch',
-    'Diet: Fish Dinner',
-    'Sleep: 10:30 PM - 6:30 AM',
-  ],
-  DateTime.utc(2025, 2, 26): [
-    'Exercise: Cycling',
-    'Exercise: Stretching',
-    'Diet: Fruit Smoothie',
-    'Diet: Chicken Salad',
-    'Diet: Steak Dinner',
-    'Sleep: 11:00 PM - 7:00 AM',
-  ],
-  DateTime.utc(2025, 2, 27): [
-    'Exercise: Swimming Practice',
-    'Exercise: Yoga Class',
-    'Diet: Pancake Breakfast',
-    'Diet: Grilled Vegetables Lunch',
-    'Diet: Soup Dinner',
-    'Sleep: 10:00 PM - 6:00 AM',
-  ],
-  DateTime.utc(2025, 2, 28): [
-    'Exercise: Meditation',
-    'Exercise: Gym Workout',
-    'Diet: Toast with Avocado',
-    'Diet: Rice Bowl Lunch',
-    'Diet: Pasta Dinner',
-    'Sleep: 10:30 PM - 6:30 AM',
-  ],
-  DateTime.utc(2025, 3, 1): [
-    'Exercise: Play Tennis',
-    'Exercise: Evening Walk',
-    'Diet: Yogurt with Berries',
-    'Diet: Chicken Wrap',
-    'Diet: Barbecue Dinner',
-    'Sleep: 11:00 PM - 7:00 AM',
-  ],
-  DateTime.utc(2025, 3, 2): [
-    'Exercise: Relax and Stretch',
-    'Exercise: Gardening',
-    'Diet: Brunch: Pancakes and Fruits',
-    'Diet: Light Dinner: Soup',
-    'Sleep: 10:00 PM - 6:00 AM',
-  ],
+final Map<DateTime, Map<String, String>> dummyPlans = {
+  DateTime.utc(2025, 3, 4): {
+    "เช้า": "เริ่มวันด้วยโยคะเบาๆ 20 นาที",
+    "บ่าย": "ควบคุมอาหารกลางวัน ไม่เกิน 600 แคลอรี่",
+    "กลางคืน": "เข้านอนไม่เกิน 22:00 น. เพื่อคุณภาพการนอนที่ดี",
+  },
+  DateTime.utc(2025, 3, 5): {
+    "เช้า": "วิ่งจ๊อกกิ้งเบาๆ หรือออกกำลังกาย 30 นาที",
+    "เย็น": "งดน้ำตาลและอาหารหนักหลัง 18:00 น.",
+  },
+  DateTime.utc(2025, 3, 6): {
+    "เช้า": "ดื่มน้ำ 1 แก้วก่อนอาหารเช้าเพื่อกระตุ้นระบบเผาผลาญ",
+    "บ่าย": "เลือกอาหารที่มีโปรตีนสูงและลดคาร์โบไฮเดรต",
+    "กลางคืน": "ปิดหน้าจอมือถือก่อนนอน 1 ชั่วโมง",
+  },
+  DateTime.utc(2025, 3, 7): {
+    "เช้า": "ยืดกล้ามเนื้อ 10 นาทีเพื่อลดอาการปวดเมื่อย",
+    "บ่าย": "พักผ่อนระหว่างวัน 15 นาทีเพื่อเพิ่มสมาธิ",
+  },
+  DateTime.utc(2025, 3, 8): {
+    "เย็น": "ออกกำลังกายเบาๆ เช่น เดินเล่น 20 นาที",
+    "กลางคืน": "ฟังเพลงผ่อนคลายก่อนนอนเพื่อช่วยให้หลับสบาย",
+  },
+  DateTime.utc(2025, 3, 9): {
+    "เช้า": "ออกไปเดินรับแสงแดดยามเช้าเพื่อเพิ่มพลังงาน",
+    "บ่าย": "เลือกขนมที่มีไฟเบอร์แทนขนมหวาน",
+    "กลางคืน": "อ่านหนังสือหรือทำสมาธิก่อนนอน 10 นาที",
+  },
+  DateTime.utc(2025, 3, 10): {
+    "เช้า": "ดื่มน้ำอุ่นผสมน้ำมะนาวเพื่อช่วยดีท็อกซ์",
+    "บ่าย": "ลดการดื่มกาแฟและดื่มน้ำมากขึ้น",
+  },
 };

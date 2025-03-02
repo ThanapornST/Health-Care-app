@@ -57,6 +57,29 @@ class _SleepingPageState extends State<SleepingPage> {
     }
   }
 
+  // ✅ ฟังก์ชันแสดง Popup ติ๊กถูก และหายไปเอง
+  void showSuccessToast() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: const [
+            Icon(Icons.check_circle, color: Colors.white, size: 24), // ติ๊กถูก
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "บันทึกเวลาพักผ่อนสำเร็จ!",
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 2), // หายไปเองใน 2 วินาที
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.green, // สีพื้นหลัง SnackBar
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,16 +114,14 @@ class _SleepingPageState extends State<SleepingPage> {
                   try {
                     if (userUUID != null) {
                       await _firestoreService.logSleepEntry(sleepHours);
-
                       print("✅ บันทึกเวลานอนสำเร็จใน UUID: $userUUID");
+                      showSuccessToast(); // แสดง SnackBar ติ๊กถูก
                     } else {
                       print("❌ ไม่พบ UUID ของผู้ใช้");
                     }
                   } catch (e) {
                     print("❌ Error saving sleep data: $e");
                   }
-
-                  Navigator.pop(context, sleepHours.toString()); 
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

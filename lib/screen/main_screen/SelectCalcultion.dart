@@ -1,4 +1,4 @@
-//หน้าหลัก
+import 'dart:math';
 import 'package:appfinal/screen/main_screen/CalculatePage.dart';
 import 'package:appfinal/screen/main_screen/CategoryScreen.dart';
 import 'package:appfinal/screen/sub_screen/ExercisePage.dart';
@@ -74,16 +74,16 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 77, 63, 44),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: const Color.fromARGB(255, 77, 63, 44),
+      // ),
       body: Column(
         children: [
           Stack(
             children: [
               // ส่วนหัว
               Container(
-                height: MediaQuery.of(context).size.height * 0.400,
+                height: MediaQuery.of(context).size.height * 0.430,
                 decoration: const BoxDecoration(
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.only(
@@ -151,7 +151,7 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
                   ),
                 ),
               ),
-              // กล่องแสดงข้อมูลแคลอรี่
+              // กล่องแสดงข้อมูลแคลอรี่ + เคล็ดลับสุขภาพ
               Positioned(
                 top: MediaQuery.of(context).size.height * 0.15,
                 left: 16,
@@ -176,105 +176,30 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
                   ),
                   child: Column(
                     children: [
-                      // แสดงแคลอรี่รวม
-                      const Row(
+                      // ✅ แสดงเคล็ดลับสุขภาพทั้งหมด
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "ทำไมต้องอ่านเล่มนี้",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "💡 เคล็ดลับสุขภาพ",
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text('1. ประโยชน์\n1.1 ใครก็สามารถทำได้'),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                  '2. เหตุผล\n2.1 กระบวนการที่สร้างความเข้าใจง่าย'),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      // ✅ แสดงรายการอาหารที่เลือก
-                      if (_consumedItems.isNotEmpty) ...[
-                        const Text(
-                          "🍽️ เมนูอาหารที่เลือก:",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _consumedItems.length,
-                          itemBuilder: (context, index) {
-                            final item = _consumedItems[index];
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(item['title']!),
-                              trailing: Text(item['calorie']!),
-                            );
-                          },
-                        ),
-                      ],
-
-                      const SizedBox(height: 10),
-
-                      // ✅ แสดงรายการกิจกรรมเผาผลาญ
-                      if (_burnedItems.isNotEmpty) ...[
-                        const Text(
-                          "🔥 กิจกรรมที่เลือก:",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _burnedItems.length,
-                          itemBuilder: (context, index) {
-                            final item = _burnedItems[index];
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(item['title']!),
-                              trailing: Text(item['calorie']!),
-                            );
-                          },
-                        ),
-                      ],
-
-                      const SizedBox(height: 20),
-
-                      // ปุ่ม "ดูเพิ่มเติม"
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>const CalculatePage(
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "ดูเพิ่มเติม",
-                            style: TextStyle(
-                              color: AppColors.iconColor,
-                              decoration: TextDecoration.underline,
+                                SizedBox(height: 5),
+                                ...getAllHealthTips().map((tip) => Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                      child: Text(
+                                        tip,
+                                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                                      ),
+                                    )),
+                              ],
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
@@ -294,5 +219,18 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
         ],
       ),
     );
+  }
+
+  // ฟังก์ชันคืนค่า "เคล็ดลับสุขภาพ" ทั้งหมด
+  List<String> getAllHealthTips() {
+    return [
+      "🥗 กินผักผลไม้ทุกวันเพื่อเสริมวิตามินให้ร่างกาย",
+      "🚶‍♂️ ออกกำลังกายอย่างน้อย 30 นาทีต่อวัน",
+      "💧 ดื่มน้ำวันละ 8 แก้วเพื่อสุขภาพที่ดี",
+      "😴 พักผ่อนให้เพียงพอ วันละ 7-8 ชั่วโมง",
+      "🌞 รับแสงแดดยามเช้าเพื่อช่วยสร้างวิตามินดี",
+      "🧘‍♀️ ฝึกสมาธิหรือโยคะเพื่อลดความเครียด",
+      "🍎 หลีกเลี่ยงอาหารแปรรูปและกินอาหารธรรมชาติ",
+    ];
   }
 }

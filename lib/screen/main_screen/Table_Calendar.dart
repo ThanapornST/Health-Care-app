@@ -12,87 +12,22 @@ class TableCalendarScreen extends StatefulWidget {
 
 class _TableCalendarScreenState extends State<TableCalendarScreen> {
   DateTime today = DateTime.now();
-  Map<DateTime, List<String>> events = dummyEvents; // Use dummy events
-
-  // ฟังก์ชันเพื่อหาวันเริ่มต้นและวันสิ้นสุดของสัปดาห์
-  List<DateTime> getWeekDays(DateTime date) {
-    final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
-    return List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
-  }
-
-  // ฟังก์ชันแสดงกิจกรรมในสัปดาห์ปัจจุบัน
-  List<String> getWeeklyEvents(DateTime date) {
-    final weekDays = getWeekDays(date);
-    List<String> weeklyEvents = [];
-    for (var day in weekDays) {
-      if (events[day] != null) {
-        weeklyEvents.addAll(events[day]!);
-      }
-    }
-    return weeklyEvents;
-  }
+  Map<DateTime, Map<String, String>> plans = dummyPlans; // ใช้โครงสร้างใหม่
 
   // ฟังก์ชันที่ทำงานเมื่อเลือกวันที่
   void _onDaySelected(DateTime day, DateTime focusedDay) {
     setState(() {
       today = day;
     });
-    _showAddNoteDialog(day);
-  }
-
-  // ฟังก์ชันกำหนดสีพื้นหลังของแผนตามประเภทกิจกรรม
-  Color getPlanColor(String planType) {
-    switch (planType) {
-      case 'Exercise':
-        return Colors.lightBlue[100]!;
-      case 'Diet':
-        return Colors.green[100]!;
-      case 'Sleep':
-        return Colors.purple[100]!;
-      default:
-        return Colors.grey[200]!;
-    }
-  }
-
-  // กล่องข้อความเพื่อเพิ่มโน้ต
-  void _showAddNoteDialog(DateTime selectedDay) {
-    TextEditingController _noteController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add Note for ${selectedDay.toLocal()}'),
-          content: TextField(
-            controller: _noteController,
-            decoration: const InputDecoration(hintText: 'Enter your note here'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if (_noteController.text.isNotEmpty) {
-                  setState(() {
-                    if (events[selectedDay] == null) {
-                      events[selectedDay] = [];
-                    }
-                    events[selectedDay]?.add(_noteController.text);
-                  });
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final dailyPlans = plans[today] ?? {}; // ดึงข้อมูลของวันปัจจุบัน
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Table Calendar with Weekly View'),
+        title: const Text('Table Calendar with Daily Plan'),
         backgroundColor: AppColors.secondary,
       ),
       body: Column(
@@ -110,14 +45,14 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
             firstDay: DateTime.utc(2020, 01, 01),
             lastDay: DateTime.utc(2030, 01, 01),
             eventLoader: (day) {
-              return events[day] ?? [];
+              return plans.containsKey(day) ? plans[day]!.values.toList() : [];
             },
             calendarStyle: const CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
-              todayTextStyle:  TextStyle(
+              todayTextStyle: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
@@ -125,7 +60,7 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
                 color: AppColors.secondary,
                 shape: BoxShape.circle,
               ),
-              selectedTextStyle:  TextStyle(
+              selectedTextStyle: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
@@ -136,45 +71,42 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
             ),
           ),
           const SizedBox(height: 10),
+          const Text(
+            'Daily Plan',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Expanded(
-            child: Column(
-              children: [
-                const Text(
-                  'Weekly Plan',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: getWeeklyEvents(today).length,
+            child: dailyPlans.isEmpty
+                ? const Center(
+                    child: Text("ไม่มีแผนสำหรับวันนี้ 😊",
+                        style: TextStyle(fontSize: 16, color: Colors.grey)))
+                : ListView.builder(
+                    itemCount: dailyPlans.length,
                     itemBuilder: (context, index) {
-                      final weeklyEvents = getWeeklyEvents(today);
-                      final event = weeklyEvents[index];
-                      final planType = event.split(':')[0]; 
-
+                      final period = dailyPlans.keys.elementAt(index);
+                      final recommendation = dailyPlans[period]!;
                       return Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
+                            horizontal: 16.0, vertical: 4.0),
                         child: Card(
-                          color: getPlanColor(planType), 
+                          color: Colors.grey[200],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side:const BorderSide(color: AppColors.secondary),
+                            side: const BorderSide(color: AppColors.secondary),
                           ),
                           child: ListTile(
                             title: Text(
-                              event,
-                              style:const TextStyle(color: AppColors.textPrimary),
+                              "$period: $recommendation",
+                              style:
+                                  const TextStyle(color: AppColors.textPrimary),
                             ),
-                            leading:const Icon(Icons.event_note,
+                            leading: const Icon(Icons.lightbulb,
                                 color: AppColors.iconColor),
                           ),
                         ),
                       );
                     },
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

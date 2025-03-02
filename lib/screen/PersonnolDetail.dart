@@ -41,6 +41,7 @@ class _PersonnolDetailsState extends State<PersonnolDetails> {
     }
   }
 
+  // ✅ ฟังก์ชันแสดง Popup แจ้งเตือน
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -57,6 +58,7 @@ class _PersonnolDetailsState extends State<PersonnolDetails> {
     );
   }
 
+  // ✅ ฟังก์ชันบันทึกข้อมูล (เพิ่มเช็คอายุ)
   Future<void> _saveUserData() async {
     String height = heightController.text.trim();
     String weight = weightController.text.trim();
@@ -76,6 +78,13 @@ class _PersonnolDetailsState extends State<PersonnolDetails> {
     }
 
     int age = DateTime.now().year - selectedDate!.year;
+    
+    // ✅ เช็คอายุ ถ้าต่ำกว่า 10 ปี ให้แสดง Popup แจ้งเตือน
+    if (age < 10) {
+      _showErrorDialog("You must be at least 10 years old to continue.");
+      return;
+    }
+
     String uuid = await _firebaseService.createAndSaveUUID();
 
     try {
@@ -109,9 +118,9 @@ class _PersonnolDetailsState extends State<PersonnolDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( // ✅ เพิ่ม SingleChildScrollView
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 20.0), // ✅ เพิ่ม padding เพื่อป้องกันเนื้อหาถูกบัง
+          padding: const EdgeInsets.only(bottom: 20.0),
           child: Column(
             children: [
               _buildHeader(),

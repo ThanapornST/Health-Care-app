@@ -45,6 +45,29 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
     }
   }
 
+  // ✅ ฟังก์ชันแสดง Popup ติ๊กถูก และหายไปเอง
+  void showSuccessToast(String title) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            Icon(Icons.check_circle, color: Colors.white, size: 24), // ติ๊กถูก
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "บันทึกสำเร็จ!",
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 2), // หายไปเองใน 2 วินาที
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.green, // สีพื้นหลัง SnackBar
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,7 +168,7 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
                             ),
                             Text(
                               _itemCounts[index].toString(),
-                              style:const TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textPrimary,
@@ -157,7 +180,7 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
                                   _itemCounts[index]++;
                                 });
                               },
-                              icon:const Icon(Icons.add, color: AppColors.iconColor),
+                              icon: const Icon(Icons.add, color: AppColors.iconColor),
                               label: const Text("Add"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
@@ -185,14 +208,13 @@ class _BeverageMenuScreenState extends State<BeverageMenuScreen> {
                                 );
 
                                 print("✅ บันทึกข้อมูลเครื่องดื่มสำเร็จ: $title ($calorie kcal)");
+                                showSuccessToast(title); // ใช้ SnackBar แทน AlertDialog
                               } else {
                                 print("❌ ไม่พบ UUID ของผู้ใช้");
                               }
                             } catch (e) {
                               print("❌ Error saving beverage data: $e");
                             }
-
-                            Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.secondary,
