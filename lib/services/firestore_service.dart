@@ -10,19 +10,25 @@ class FirestoreService {
       return userUUID!;
     }
 
-    // 🔹 ดึง UUID จาก Firestore
-    QuerySnapshot querySnapshot = await _firestore.collection('users').get();
-    if (querySnapshot.docs.isNotEmpty) {
-      userUUID = querySnapshot.docs.first.id; // ใช้ UUID เดิม
-    } else {
-      userUUID = _firestore.collection('users').doc().id; // สร้าง UUID ใหม่
-      await _firestore.collection('users').doc(userUUID).set({
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-    }
+    try {
+      // 🔹 ค้นหา UUID ของผู้ใช้จาก Firestore
+      QuerySnapshot querySnapshot = await _firestore.collection('users').limit(1).get();
+      
+      if (querySnapshot.docs.isNotEmpty) {
+        userUUID = querySnapshot.docs.first.id; // ใช้ UUID เดิม
+      } else {
+        userUUID = _firestore.collection('users').doc().id; // สร้าง UUID ใหม่
+        await _firestore.collection('users').doc(userUUID).set({
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
 
-    print("✅ ใช้ UUID: $userUUID");
-    return userUUID!;
+      print("✅ ใช้ UUID: $userUUID");
+      return userUUID!;
+    } catch (e) {
+      print("❌ Error ดึงหรือสร้าง UUID: $e");
+      rethrow;
+    }
   }
 
   // ✅ ฟังก์ชันบันทึกข้อมูลผู้ใช้ (อายุ, น้ำหนัก, ส่วนสูง, เพศ)

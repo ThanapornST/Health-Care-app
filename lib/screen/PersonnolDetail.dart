@@ -213,7 +213,7 @@ class _PersonnolDetailsState extends State<PersonnolDetails> {
           'Select gender',
           style: TextStyle(fontSize: 14),
         ),
-        items: ['Male', 'Female', 'Other']
+        items: ['Male', 'Female']
             .map<DropdownMenuItem<String>>((String value) => DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),

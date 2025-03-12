@@ -1,21 +1,26 @@
 import 'dart:math';
 import 'package:appfinal/screen/main_screen/CalculatePage.dart';
 import 'package:appfinal/screen/main_screen/CategoryScreen.dart';
+import 'package:appfinal/screen/main_screen/health%20advice.dart';
 import 'package:appfinal/screen/sub_screen/ExercisePage.dart';
 import 'package:appfinal/screen/main_screen/SummarizePage.dart';
 import 'package:appfinal/screen/main_screen/Table_Calendar.dart';
 import 'package:appfinal/theme/AppColors%20.dart';
 import 'package:appfinal/widget/button/button_page.dart';
 import 'package:flutter/material.dart';
+import 'package:appfinal/services/firestore_service.dart';
+import 'package:appfinal/services/gemini_service.dart';
 
-class SelectCalcultion extends StatefulWidget {
+class SelectCalculation extends StatefulWidget {
   final String? name;
   final String? imageUrl;
   final String? logoUrl;
   final String height;
   final String weight;
 
-  const SelectCalcultion({
+  
+
+  const SelectCalculation({
     this.name,
     this.imageUrl,
     this.logoUrl,
@@ -25,18 +30,18 @@ class SelectCalcultion extends StatefulWidget {
   });
 
   @override
-  State<SelectCalcultion> createState() => _SelectCalcultionState();
+  State<SelectCalculation> createState() => _SelectCalculationState();
 }
 
-class _SelectCalcultionState extends State<SelectCalcultion> {
+class _SelectCalculationState extends State<SelectCalculation> {
   int _totalCalories = 0;
   int _burnedCalories = 0;
 
-  // รายการอาหารและกิจกรรม
   List<Map<String, String>> _consumedItems = [];
   List<Map<String, String>> _burnedItems = [];
 
-  // เพิ่มเมนูอาหาร
+  final FirestoreService _firestoreService = FirestoreService();
+
   void _addCalories(String title, String calorie) {
     setState(() {
       int cal = int.parse(calorie);
@@ -45,7 +50,6 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
     });
   }
 
-  // เพิ่มกิจกรรมเผาผลาญ
   void _updateBurnedCalories(String title, String burned) {
     setState(() {
       int cal = int.parse(burned);
@@ -54,34 +58,180 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
     });
   }
 
-  List<Widget> _pages = [];
-
   @override
   void initState() {
     super.initState();
-    _pages = [
-      SelectCalcultion(
-        height: widget.height,
-        weight: widget.weight,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showHealthPopup(context);
+    });
+  }
+
+// ✅ ฟังก์ชันสำหรับคำนวณโปรตีน คาร์โบไฮเดรต และเวลาออกกำลังกาย ตามน้ำหนักและเป้าหมาย
+Map<String, dynamic> getHealthRecommendation(double weight, String goal) {
+  double protein = 0.0;
+  double carb = 0.0;
+  int exerciseMinutes = 0;
+
+  if (goal == "ลดน้ำหนัก") {
+    protein = weight * 1.8;
+    carb = weight * 3.5;
+    exerciseMinutes = 40;
+  } else if (goal == "เพิ่มกล้ามเนื้อ") {
+    protein = weight * 2.0;
+    carb = weight * 5;
+    exerciseMinutes = 30;
+  } else {
+    protein = weight * 1.5;
+    carb = weight * 4;
+    exerciseMinutes = 30;
+  }
+
+  return {
+    "protein": protein.round(),
+    "carb": carb.round(),
+    "exercise": exerciseMinutes
+  };
+}
+
+// ✅ ฟังก์ชันแบ่งมื้ออาหาร
+Map<String, Map<String, int>> splitMeals(double protein, double carb) {
+  return {
+    "มื้อเช้า": {
+      "protein": (protein * 0.3).round(),
+      "carb": (carb * 0.3).round(),
+    },
+    "มื้อกลางวัน": {
+      "protein": (protein * 0.4).round(),
+      "carb": (carb * 0.4).round(),
+    },
+    "มื้อเย็น": {
+      "protein": (protein * 0.3).round(),
+      "carb": (carb * 0.3).round(),
+    },
+  };
+}
+
+// ✅ ฟังก์ชัน popup แนะนำสุขภาพ + BMI + AI โดยใช้ค่าที่ส่งมา
+void _showHealthPopup(BuildContext context) async {
+  try {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    // ✅ ใช้ค่าจากหน้าก่อน (widget)
+    double height = double.parse(widget.height);
+    double weight = double.parse(widget.weight);
+    double heightInMeters = height / 100;
+    double bmi = weight / (heightInMeters * heightInMeters);
+
+    // ✅ ดึงข้อมูลอื่นๆ จาก Firebase
+    String uuid = await _firestoreService.getOrCreateUserUUID();
+    var userData = await _firestoreService.getUserData(uuid);
+    int age = userData['age'];
+    String gender = userData['gender'];
+    String goal = "ลดน้ำหนัก"; // ตัวอย่าง
+
+    // ✅ เรียก AI
+    String aiAdvice = await GeminiService.getHealthAdvice(age, gender, weight, height, goal);
+
+    // ✅ คำนวณคำแนะนำ (โปรตีน คาร์โบ ออกกำลังกาย)
+    final recommendation = getHealthRecommendation(weight, goal);
+
+    // ✅ แบ่งมื้ออาหาร
+    final mealPlans = splitMeals(recommendation['protein'].toDouble(), recommendation['carb'].toDouble());
+
+    Navigator.pop(context); // ปิด loading
+
+// ✅ Popup (แสดงเฉพาะ BMI, โปรตีนรวม, คาร์โบรวม, ออกกำลังกาย)
+showDialog(
+  context: context,
+  builder: (context) => AlertDialog(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    title: const Text(
+      '🎯 แนะนำสุขภาพวันนี้',
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      textAlign: TextAlign.center,
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('📏 BMI:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+            Text(bmi.toStringAsFixed(1),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: bmi >= 18.5 && bmi <= 24.9
+                        ? Colors.green
+                        : Colors.orange)),
+          ],
+        ),
+        const Divider(height: 20, thickness: 1),
+        _buildAdviceRow("🏋️‍♀️ ออกกำลังกาย", "${recommendation['exercise']} นาที"),
+        _buildAdviceRow("🍗 โปรตีนรวม", "${recommendation['protein']} กรัม"),
+        _buildAdviceRow("🍚 คาร์โบไฮเดรตรวม", "${recommendation['carb']} กรัม"),
+      ],
+    ),
+    actionsAlignment: MainAxisAlignment.center,
+    actions: [
+      TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('ตกลง')),
+      TextButton(
+        onPressed: () {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HealthAdviceScreen(
+                age: age,
+                gender: gender,
+                weight: weight,
+                height: height,
+                goal: goal,
+                recommendation: recommendation, // ส่งข้อมูลต่อไป
+                splitMeals: mealPlans, // เผื่อใช้ในหน้า HealthAdviceScreen
+              ),
+            ),
+          );
+        },
+        child: const Text('ดูเพิ่มเติม'),
       ),
-      const CategoryScreen(),
-      const SummarizePage(),
-      const TableCalendarScreen(),
-      const ExerciseScreen(),
-    ];
+    ],
+  ),
+);
+
+  } catch (e) {
+    Navigator.pop(context);
+    print("❌ Error: $e");
+  }
+}
+
+  // ---------------------------------------------------
+
+  Widget _buildAdviceRow(String title, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green)),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: const Color.fromARGB(255, 77, 63, 44),
-      // ),
       body: Column(
         children: [
           Stack(
             children: [
-              // ส่วนหัว
               Container(
                 height: MediaQuery.of(context).size.height * 0.430,
                 decoration: const BoxDecoration(
@@ -100,48 +250,20 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // รูปโปรไฟล์ผู้ใช้
                           ClipOval(
                             child: Image.network(
-                              widget.imageUrl ??
-                                  'https://i.pinimg.com/736x/6c/04/f4/6c04f47686c8e86bb4da000ffeceb330.jpg',
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.error, size: 60);
-                              },
+                              widget.imageUrl ?? 'https://i.pinimg.com/736x/6c/04/f4/6c04f47686c8e86bb4da000ffeceb330.jpg',
+                              width: 60, height: 60, fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 60),
                             ),
                           ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(
-                                  'Height: ${widget.height} cm',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Weight: ${widget.weight} kg',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Date: ${DateTime.now().toString().split(' ')[0]}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                Text('Height: ${widget.height} cm', style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Weight: ${widget.weight} kg', style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Date: ${DateTime.now().toString().split(' ')[0]}', style: const TextStyle(fontSize: 16, color: Colors.white)),
                               ],
                             ),
                           ),
@@ -151,7 +273,6 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
                   ),
                 ),
               ),
-              // กล่องแสดงข้อมูลแคลอรี่ + เคล็ดลับสุขภาพ
               Positioned(
                 top: MediaQuery.of(context).size.height * 0.15,
                 left: 16,
@@ -161,76 +282,23 @@ class _SelectCalcultionState extends State<SelectCalcultion> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: AppColors.secondary,
-                      width: 1.0,
-                    ),
+                    boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.5), spreadRadius: 5, blurRadius: 7, offset: const Offset(0, 3))],
+                    border: Border.all(color: AppColors.secondary, width: 1.0),
                   ),
                   child: Column(
-                    children: [
-                      // ✅ แสดงเคล็ดลับสุขภาพทั้งหมด
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "💡 เคล็ดลับสุขภาพ",
-                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(height: 5),
-                                ...getAllHealthTips().map((tip) => Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                      child: Text(
-                                        tip,
-                                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                                      ),
-                                    )),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    children: getAllHealthTips().map((tip) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: Text(tip, style: TextStyle(fontSize: 14, color: Colors.grey[700])))).toList(),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 1),
-
-          // ปุ่มต่าง ๆ ในแอป
-          const Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: ButtonPage(),
-            ),
-          ),
+          const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16.0), child: ButtonPage())),
         ],
       ),
     );
   }
 
-  // ฟังก์ชันคืนค่า "เคล็ดลับสุขภาพ" ทั้งหมด
-  List<String> getAllHealthTips() {
-    return [
-      "🥗 กินผักผลไม้ทุกวันเพื่อเสริมวิตามินให้ร่างกาย",
-      "🚶‍♂️ ออกกำลังกายอย่างน้อย 30 นาทีต่อวัน",
-      "💧 ดื่มน้ำวันละ 8 แก้วเพื่อสุขภาพที่ดี",
-      "😴 พักผ่อนให้เพียงพอ วันละ 7-8 ชั่วโมง",
-      "🌞 รับแสงแดดยามเช้าเพื่อช่วยสร้างวิตามินดี",
-      "🧘‍♀️ ฝึกสมาธิหรือโยคะเพื่อลดความเครียด",
-      "🍎 หลีกเลี่ยงอาหารแปรรูปและกินอาหารธรรมชาติ",
-    ];
-  }
+  List<String> getAllHealthTips() => ["🥗 กินผักผลไม้", "🚶‍♂️ ออกกำลังกาย", "💧 ดื่มน้ำ", "😴 พักผ่อน", "🌞 แสงแดด", "🧘‍♀️ สมาธิ", "🍎 อาหารไม่แปรรูป"];
 }
