@@ -1,6 +1,5 @@
 import 'package:appfinal/screen/main_screen/CalculatePage.dart';
 import 'package:appfinal/screen/main_screen/CategoryScreen.dart';
-import 'package:appfinal/screen/main_screen/FoodCameraPage.dart';
 import 'package:appfinal/screen/sub_screen/ExercisePage.dart';
 import 'package:appfinal/screen/main_screen/SelectCalcultion.dart';
 import 'package:appfinal/screen/main_screen/SummarizePage.dart';

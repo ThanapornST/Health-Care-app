@@ -29,30 +29,30 @@ class _HealthAdviceScreenState extends State<HealthAdviceScreen> {
   bool isLoading = true;
 
   @override
-  void initState() {
-    super.initState();
-    fetchAdvice(); // เรียก AI แต่ตอนนี้อาจไม่ใช้เพราะเราส่งข้อมูลมาเองแล้ว
-  }
+void fetchAdvice() async {
+  try {
+    String response = await GeminiService.getHealthAdvice(
+      widget.age,
+      widget.gender,
+      widget.weight,
+      widget.height,
+      widget.goal,
+    );
 
-  void fetchAdvice() async {
-    try {
-      String response = await GeminiService.getHealthAdvice(
-        widget.age,
-        widget.gender,
-        widget.weight,
-        widget.height,
-        widget.goal,
-      );
-
+    if (mounted) {
       setState(() {
         isLoading = false;
       });
-    } catch (e) {
+    }
+  } catch (e) {
+    if (mounted) {
       setState(() {
         isLoading = false;
       });
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

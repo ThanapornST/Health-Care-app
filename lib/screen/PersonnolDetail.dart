@@ -175,13 +175,13 @@ class _PersonnolDetailsState extends State<PersonnolDetails> {
         onTap: () => _selectDate(context),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today, size: 24, color: AppColors.secondary),
+            const Icon(Icons.calendar_today, size: 24, color: Color.fromARGB(255, 0, 0, 0)),
             const SizedBox(width: 10),
             Text(
               selectedDate != null
                   ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"
                   : 'Select your birthday',
-              style: const TextStyle(fontSize: 14, color: AppColors.secondary),
+              style: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 8, 8, 8)),
             ),
           ],
         ),

@@ -37,6 +37,7 @@ class _CalculatePageState extends State<CalculatePage> {
     super.initState();
     _fetchUserData();
     _fetchCaloriesData();
+    _fetchSleepTime(); // ✅ ดึงเวลานอนมาจาก Firestore
   }
 
   Future<void> _fetchUserData() async {
@@ -44,14 +45,16 @@ class _CalculatePageState extends State<CalculatePage> {
     DocumentSnapshot userDoc = await _firestoreService.getUserData(uuid);
 
     if (userDoc.exists) {
+      final data = userDoc.data() as Map<String, dynamic>;
+
       setState(() {
-        age = userDoc['age'] ?? age;
-        gender = userDoc['gender'] ?? gender;
-        height = (userDoc['height'] ?? height).toDouble();
-        weight = (userDoc['weight'] ?? weight).toDouble();
+        age = data['age'] ?? age;
+        gender = data['gender'] ?? gender;
+        height = (data['height'] ?? height).toDouble();
+        weight = (data['weight'] ?? weight).toDouble();
       });
 
-      _calculateBMR();
+      _calculateBMR(); // อย่าลืมเรียกหลัง setState
     }
   }
 
@@ -67,6 +70,37 @@ class _CalculatePageState extends State<CalculatePage> {
     });
   }
 
+  Future<void> _fetchSleepTime() async {
+    try {
+      String uuid = await _firestoreService.getOrCreateUserUUID();
+      DateTime today = DateTime.now();
+      String docId = "${today.year}-${today.month}-${today.day}";
+
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uuid)
+          .collection("sleep_logs")
+          .doc(docId)
+          .get();
+
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          sleepTime = data["sleep_hours"]?.toString() ?? "--";
+        });
+      } else {
+        setState(() {
+          sleepTime = "--";
+        });
+      }
+    } catch (e) {
+      print("❌ ดึงเวลานอนไม่สำเร็จ: $e");
+      setState(() {
+        sleepTime = "--";
+      });
+    }
+  }
+
   void _calculateBMR() async {
     setState(() {
       if (gender == "male") {
@@ -76,7 +110,8 @@ class _CalculatePageState extends State<CalculatePage> {
       }
     });
 
-    await _firestoreService.saveUserBMRAndRemainingCalories(bmr, remainingCalories);
+    await _firestoreService.saveUserBMRAndRemainingCalories(
+        bmr, remainingCalories);
     print("✅ คำนวณ BMR สำเร็จ: $bmr kcal/day");
   }
 
@@ -85,7 +120,8 @@ class _CalculatePageState extends State<CalculatePage> {
       remainingCalories = bmr.round() - (caloriesConsumed - caloriesBurned);
     });
 
-    await _firestoreService.saveUserBMRAndRemainingCalories(bmr, remainingCalories);
+    await _firestoreService.saveUserBMRAndRemainingCalories(
+        bmr, remainingCalories);
     print("✅ คำนวณ Remaining Calories สำเร็จ: $remainingCalories kcal");
   }
 
@@ -114,9 +150,10 @@ class _CalculatePageState extends State<CalculatePage> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BeverageMenuScreen(
+                    builder: (context) => MainMenuScreen(
                       onSelectMenu: (title, calorie, count) {
-                        addCalories(title, calorie, count);
+                        addCalories(title, calorie,
+                            count); // ต้องเรียกตัวนี้ถึงจะอัปเดต
                         Navigator.pop(context);
                       },
                     ),
@@ -239,7 +276,8 @@ class _CalculatePageState extends State<CalculatePage> {
                 const SizedBox(height: 8),
                 _buildSummaryRow("🍽️ รับประทาน", "$caloriesConsumed kcal"),
                 _buildSummaryRow("🔥 เผาผลาญ", "$caloriesBurned kcal"),
-                _buildSummaryRow("💪 BMR", "${bmr.toStringAsFixed(2)} kcal/day"),
+                _buildSummaryRow(
+                    "💪 BMR", "${bmr.toStringAsFixed(2)} kcal/day"),
                 _buildSummaryRow(
                   "⚖️ แคลอรี่ที่เหลือ",
                   "$remainingCalories kcal",
@@ -253,7 +291,8 @@ class _CalculatePageState extends State<CalculatePage> {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {Color color = Colors.black}) {
+  Widget _buildSummaryRow(String label, String value,
+      {Color color = Colors.black}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
@@ -262,7 +301,8 @@ class _CalculatePageState extends State<CalculatePage> {
           Text(label, style: const TextStyle(fontSize: 16)),
           Text(
             value,
-            style: TextStyle(fontSize: 16, color: color, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 16, color: color, fontWeight: FontWeight.bold),
           ),
         ],
       ),
